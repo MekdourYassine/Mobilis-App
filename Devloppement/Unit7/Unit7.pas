@@ -1,0 +1,194 @@
+unit Unit7;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, Grids, DBGrids;
+
+type
+  TForm7 = class(TForm)
+    SpeedButton1: TSpeedButton;
+    SpeedButton2: TSpeedButton;
+    GroupBox1: TGroupBox;
+    SpeedButton3: TSpeedButton;
+    SpeedButton4: TSpeedButton;
+    DBGrid1: TDBGrid;
+    procedure SpeedButton2Click(Sender: TObject);
+    procedure SpeedButton3Click(Sender: TObject);
+    procedure SpeedButton4Click(Sender: TObject);
+    procedure SpeedButton1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form7: TForm7;
+
+implementation
+
+uses Unit10;
+
+{$R *.dfm}
+
+procedure TForm7.SpeedButton2Click(Sender: TObject);
+begin
+close();
+end;
+
+procedure TForm7.SpeedButton3Click(Sender: TObject);
+begin
+if (dbgrid1.Visible=false) then
+ShowMessage('Erreur vous devez lancer la recherche')
+else
+begin
+if MessageDlg('Etes-vous sûr de vouloir supprimer ce compte ', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+  datamodule10.ADOTable_compte_admin.Delete;
+end;
+end;
+
+procedure TForm7.SpeedButton4Click(Sender: TObject);
+var Modifier: TForm;
+    nom_admin,prenom_admin,Adresse_admin,Num_tel_admin,log,motdp:TEdit;
+    id,verif,verif2,verif3,verif4 :string;
+
+begin
+ if (dbgrid1.Visible=false) then
+ShowMessage('Erreur vous devez lancer la recherche')
+else
+begin
+ nom_admin:=TEdit.Create(Nil);
+ prenom_admin:=TEdit.Create(Nil);
+ Adresse_admin:=TEdit.Create(Nil);
+ Num_tel_admin:=TEdit.Create(Nil);
+ log:=TEdit.Create(Nil);
+ motdp:=TEdit.Create(Nil);
+
+
+
+ // Créer le message modifier l'enregistrement (#13= Sauter la ligne entrer)
+
+ modifier := CreateMessageDialog('Modifier  compte  administrateur                           '+#13+#13+
+                                'Nom                                                         '+#13+#13+#13+
+                                'Prenom                                                      '+#13+#13+#13+#13+
+                                'Adresse                                                     '+#13+#13+#13+
+                                'Numero de telephone                                         '+#13+#13+#13+
+                                'Identifiant                                                 '+#13+#13+#13+#13+
+                                'Mot de passe                                                '+#13+#13+#13+#13
+                                ,mtInformation,[mbYes, mbCancel]);
+
+ with Modifier do
+ try
+ // Modifier le titre de le fenetre
+ Caption := 'Modifier Compte administrateur';
+ width :=400;
+ height :=900;
+ autoscroll:=false;
+ autosize:=true;
+
+
+ // Modifier la position de la zone de nom
+ nom_admin.Parent:=modifier;
+ nom_admin.Left:=55;
+ nom_admin.Top:=50;
+ nom_admin.Width:=150;
+ nom_admin.Height:=30;
+
+// Modifier la position de la zone de prenom
+ prenom_admin.Parent:=modifier;
+ prenom_admin.Left:=55;
+ prenom_admin.Top:=100;
+ prenom_admin.Width:=150;
+ prenom_admin.Height:=30;
+
+
+
+ // Modifier la position de la zone de l'adresse
+ Adresse_admin.Parent:=modifier;
+ Adresse_admin.Left:=55;
+ Adresse_admin.Top:=150;
+ Adresse_admin.Width:=150;
+ Adresse_admin.Height:=30;
+
+ // Modifier la position de la zone de numero de telephone
+ num_tel_admin.Parent:=modifier;
+ num_tel_admin.Left:=55;
+ num_tel_admin.Top:=200;
+ num_tel_admin.Width:=150;
+ num_tel_admin.Height:=30;
+
+ // Modifier la position de la zone login
+ log.Parent:=modifier;
+ log.Left:=55;
+ log.Top:=250;
+ log.Width:=150;
+ log.Height:=30;
+
+ // Modifier la position de la zone mot de passe
+ motdp.Parent:=modifier;
+ motdp.Left:=55;
+ motdp.Top:=300;
+ motdp.Width:=150;
+ motdp.Height:=30;
+
+
+// Remplir les valeurs de chaque zone de texte
+nom_admin.Text:=datamodule10.ADOTable_compte_admin.Fields[1].asstring;
+prenom_admin.Text:=datamodule10.adotable_compte_admin.fields[2].asstring;
+Adresse_admin.Text:= datamodule10.ADOTable_compte_admin.Fields[3].AsString;
+num_tel_admin.Text:= datamodule10.ADOTable_compte_admin.Fields[4].AsString;
+log.Text:= datamodule10.ADOTable_compte_admin.Fields[5].AsString;
+motdp.Text:= datamodule10.ADOTable_compte_admin.Fields[6].AsString;
+
+
+
+
+ if (ShowModal = ID_YES) then
+Begin
+With datamodule10.ADOTable_compte_admin Do
+begin
+// Mettre la table mode d'edition = modification
+   Edit;
+// Donner la valeur de chaque champs ici on peux utiliser soit Fields[...] soit FieldsByName(...)
+   fields[1].value:=nom_admin.text;
+   fields[2].value:=prenom_admin.text;
+   Fields[3].Value:=Adresse_admin.Text;
+   Fields[4].Value:=num_tel_admin.Text;
+   Fields[5].Value:=log.Text;
+    Fields[6].Value:=motdp.Text;
+
+// Valider l'enregistrement
+   Post;
+
+end;
+end;
+ finally
+ // Libérer les compos crées ainsi que la fiche modifier
+    nom_admin.Free;
+    prenom_admin.Free;
+    adresse_admin.Free;
+     num_tel_admin.Free;
+     log.Free;
+     motdp.Free;
+    modifier.Free;
+
+
+end;
+end;
+end;
+
+
+procedure TForm7.SpeedButton1Click(Sender: TObject);
+
+begin
+
+datamodule10.ADOQuery_authentification.Close;
+dbgrid1.Visible:=false;
+DataModule10.DataSource_compte_admin.DataSet:=DataModule10.ADOTable_compte_admin;
+datamodule10.ADOTable_compte_admin.Open;
+dbgrid1.Visible:=true;
+end;
+
+end.
